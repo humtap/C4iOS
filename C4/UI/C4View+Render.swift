@@ -25,7 +25,8 @@ public extension C4View {
             print("Could not retrieve layer for current object: \(self)")
             return nil
         }
-        UIGraphicsBeginImageContextWithOptions(CGSize(size), false, UIScreen.mainScreen().scale)
+        let graphicsSize = C4Size(floor(width),floor(height))
+        UIGraphicsBeginImageContextWithOptions(CGSize(graphicsSize), false, UIScreen.mainScreen().scale)
         let context = UIGraphicsGetCurrentContext()!
         l.renderInContext(context)
         let uiimage = UIGraphicsGetImageFromCurrentImageContext()
@@ -36,15 +37,15 @@ public extension C4View {
 
 public extension C4Shape {
     public override func render() -> C4Image? {
-        var s = CGSize(size)
+        var graphicsSize = CGSize(C4Size(floor(width),floor(height)))
         var inset: CGFloat = 0
         if lineWidth > 0 && strokeColor?.alpha > 0.0 {
             inset = CGFloat(lineWidth/2.0)
-            s = CGRectInset(CGRect(frame), -inset, -inset).size
+            graphicsSize = CGRectInset(CGRect(frame), -inset, -inset).size
         }
 
         let scale = CGFloat(UIScreen.mainScreen().scale)
-        UIGraphicsBeginImageContextWithOptions(s, false, scale)
+        UIGraphicsBeginImageContextWithOptions(graphicsSize, false, scale)
         let context = UIGraphicsGetCurrentContext()!
         CGContextTranslateCTM(context, CGFloat(-bounds.origin.x)+inset, CGFloat(-bounds.origin.y)+inset)
         shapeLayer.renderInContext(context)

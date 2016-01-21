@@ -98,21 +98,18 @@ public class C4Shape: C4View {
 
     public var gradientFill: C4Gradient? {
         didSet {
-            if let fill = gradientFill {
-                if mask == nil  {
-                    let m = C4Shape(self)
-                    m.fillColor = black
-                    m.strokeColor = black
-                    mask = m
-                }
-                fillColor = nil
-                shapeLayer.contents = fill.render()?.cgimage
-            } else {
-                let image = UIImage.createWithColor(UIColor.clearColor(), size: CGSize(width: 1, height: 1)).CGImage
-                shapeLayer.contents = image
+            guard gradientFill != nil else {
+                fillColor = clear
                 return
             }
-
+            UIGraphicsBeginImageContextWithOptions(CGSize(size), false, UIScreen.mainScreen().scale)
+            let context = UIGraphicsGetCurrentContext()
+            let gim = gradientFill?.render()?.cgimage
+            CGContextDrawTiledImage(context, CGRect(bounds), gim)
+            let uiimage = UIGraphicsGetImageFromCurrentImageContext()
+            let uicolor = UIColor(patternImage: uiimage)
+            fillColor = C4Color(uicolor)
+            UIGraphicsEndImageContext();
         }
     }
 
@@ -177,9 +174,6 @@ public class C4Shape: C4View {
         }
         set(color) {
             shapeLayer.fillColor = color?.CGColor
-            if color != nil {
-                gradientFill = nil
-            }
         }
     }
     
