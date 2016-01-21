@@ -32,7 +32,15 @@ extension UIGestureRecognizer {
             return C4Point(locationInView(referenceView))
         }
     }
-    
+
+    public var locations: [C4Point] {
+        var locs = [C4Point]()
+        for i in 0..<numberOfTouches() {
+            locs.append(C4Point(locationOfTouch(i, inView: referenceView)))
+        }
+        return locs
+    }
+
     internal var referenceView: UIView? {
         get {
             let weakViewWrapper: WeakViewWrapper? = objc_getAssociatedObject(self, &viewAssociationKey) as? WeakViewWrapper
@@ -76,7 +84,7 @@ extension UIGestureRecognizer {
 }
 
 
-public typealias TapAction = (location: C4Point, state: UIGestureRecognizerState) -> ()
+public typealias TapAction = (locations: [C4Point], center: C4Point, state: UIGestureRecognizerState) -> ()
 
 extension UITapGestureRecognizer {
     
@@ -113,8 +121,8 @@ extension UITapGestureRecognizer {
             self.action = action
         }
         
-        func handleGesture(gestureRecognizer: UIPanGestureRecognizer) {
-            action(location: gestureRecognizer.location, state: gestureRecognizer.state)
+        func handleGesture(gestureRecognizer: UITapGestureRecognizer) {
+            action(locations: gestureRecognizer.locations, center: gestureRecognizer.location, state: gestureRecognizer.state)
         }
     }
 }
